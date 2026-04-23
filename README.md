@@ -160,15 +160,49 @@ After bootstrap, your `$HOME` has:
 
 | Command | Description |
 |---------|-------------|
-| `dotfile bootstrap --os <os> [--profile <p>] [--overlay <dir>]` | Create symlinks and regenerate `.local` files |
+| `dotfile bootstrap` | Create symlinks and regenerate `.local` files |
 | `dotfile status` | Check health of all managed symlinks |
-| `dotfile register <path>` | Register a new config file or directory (moves + symlinks) |
-| `dotfile specialize os <path>` | Scaffold OS variants + wire `.local` include |
-| `dotfile specialize profile <path>` | Same, for profiles |
-| `dotfile unregister <id>` | Undo a `register` — restore the original file |
+| `dotfile register` | Register a new config file or directory (moves + symlinks) |
+| `dotfile specialize` | Scaffold OS/profile variant files and wire `.local` include |
+| `dotfile unregister` | Undo a `register` — restore the original file |
 | `dotfile list` | List all managed files |
 | `dotfile doctor` | Find and remove stale symlinks |
 | `dotfile env` | Show current OS, profile, and overlay |
+
+### `dotfile bootstrap`
+
+```
+dotfile bootstrap --os <macos|linux> [--profile <name>] [--overlay <dir>] [--dry-run]
+```
+
+- `--os` — required on first run; remembered in `~/.dotfiles_env` after.
+- `--profile` — activates a profile's variants and registry entries.
+- `--overlay` — layers a second repo on top (see overlay section below).
+- `--dry-run` — preview the plan without touching the filesystem.
+
+Existing non-symlink files at a link location are preserved as `<path>.bak`.
+
+### `dotfile register`
+
+```
+dotfile register <path> [--category <name>] [--os <os>] [--profile <name>] [--name <file>] [--force]
+```
+
+- `--category` — target subdirectory in the repo (auto-detected if omitted).
+- `--os` / `--profile` — scope the entry to matching machines only.
+- `--name` — rename the file inside the repo.
+- `--force` — overwrite an existing registration or repo file.
+
+### `dotfile specialize`
+
+```
+dotfile specialize <os|profile> <dotfile> [--dry-run]
+```
+
+Creates variant files (`.macos.gitconfig`, `.work.gitconfig`, etc.) using the
+`os:` / `profiles:` lists from `__registry__.yaml`, and appends the `.local`
+include line to the base file. Works on root paths and nested
+`.config/<tool>/…` paths. Idempotent.
 
 ## Overlay directory (layered configs)
 
