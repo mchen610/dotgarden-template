@@ -75,7 +75,7 @@ to each file):
 Some apps store config in inconvenient places:
 `~/Library/Application Support/Cursor/User/settings.json`,
 `~/.claude/skills/`, etc. The registry maps a clean repo path to the
-actual target. This example registers Cursor:
+actual target. This example registers Cursor and Codex personal instructions:
 
 ```yaml
 # __registry__.yaml
@@ -83,6 +83,9 @@ cursor:
   macos:
   - _cursor/settings.json: ~/Library/Application Support/Cursor/User/settings.json
   - _cursor/keybindings.json: ~/Library/Application Support/Cursor/User/keybindings.json
+
+codex:
+- _codex/AGENTS.md: ~/.codex/AGENTS.md
 ```
 
 Use the registry when:
@@ -93,6 +96,31 @@ Use the registry when:
 
 Don't use the registry for things the conventions already handle —
 registering `~/.config/fish/` by hand is noise.
+
+### Codex personal instructions
+
+Codex reads personal instructions from `~/.codex/AGENTS.md` by default; see
+[Custom instructions with AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md).
+This template registers only that file, on both macOS and Linux:
+
+```
+<repo>/_codex/AGENTS.md   → ~/.codex/AGENTS.md
+```
+
+Edit `_codex/AGENTS.md` to set your preferences. The rest of `~/.codex/`, including
+login credentials and session state, stays on the machine.
+
+If you already have personal instructions, register them **before bootstrapping**
+to replace the template's starter file with your existing contents:
+
+```bash
+dotfile register ~/.codex/AGENTS.md --category codex --force -y
+```
+
+`--force` replaces the starter `_codex/AGENTS.md` in this repo. Registration moves
+your existing file there and creates the symlink back, so future edits through
+either path update the same file. Bootstrap recreates the link on other machines.
+If you bootstrap first, existing instructions are preserved as `AGENTS.md.bak`.
 
 ## The command sequence that produced this layout
 
@@ -143,6 +171,9 @@ dotfile register ~/Library/Application\ Support/Cursor/User/settings.json \
     --category cursor --os macos
 dotfile register ~/Library/Application\ Support/Cursor/User/keybindings.json \
     --category cursor --os macos
+
+# --- Register Codex personal instructions (same path on both OSes) ---
+dotfile register ~/.codex/AGENTS.md --category codex
 
 # --- Bootstrap everything ---
 dotfile bootstrap --os macos
